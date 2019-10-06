@@ -1,0 +1,65 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+```{r}
+library(scPipe)
+library(SingleCellExperiment)
+data_dir = "sra-toolkit"
+```
+```{r}
+# file path:
+ERCCfa_fn = system.file("extdata", "ERCC92.fa", package = "scPipe")
+ERCCanno_fn = system.file("extdata", "ERCC92_anno.gff3", package = "scPipe")
+barcode_annotation_fn = system.file("extdata", "barcode_anno.csv", package = "scPipe")
+fq_R1 = system.file("extdata", "simu_R1.fastq.gz", package = "scPipe")
+fq_R2 = system.file("extdata", "simu_R2.fastq.gz", package = "scPipe")
+```
+```{r}
+sc_trim_barcode(file.path(data_dir, "combined.fastq.gz"),
+                fq_R1,
+                fq_R2,
+                read_structure = list(bs1=-1, bl1=0, bs2=6, bl2=8, us=0, ul=6))
+```
+```{r}
+if(.Platform$OS.type != "windows"){
+  Rsubread::buildindex(basename=file.path(data_dir, "ERCC_index"), reference=ERCCfa_fn)
+
+  Rsubread::align(index=file.path(data_dir, "ERCC_index"),
+      readfile1=file.path(data_dir, "combined.fastq.gz"),
+      output_file=file.path(data_dir, "out.aln.bam"), phredOffset=64)
+}
+```
+```{r}
+if(.Platform$OS.type != "windows"){
+  sc_exon_mapping(file.path(data_dir, "out.aln.bam"),
+                file.path(data_dir, "out.map.bam"),
+                ERCCanno_fn)
+}
+```
+```{r}
+if(.Platform$OS.type != "windows"){
+  sc_demultiplex(file.path(data_dir, "out.map.bam"), data_dir, barcode_annotation_fn,has_UMI=FALSE)
+
+  sc_gene_counting(data_dir, barcode_annotation_fn)
+}
+```
+
+
+
