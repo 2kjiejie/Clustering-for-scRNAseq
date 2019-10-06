@@ -66,6 +66,10 @@ It will mainly store all the information in the outs/ folder and the required fo
 ├── web_summary.html
 ```
 
+These data are stored in sparse way. But you could also use the following command to transform the data into csv files:
+>
+    cellranger mat2csv sample123/outs/filtered_feature_bc_matrix sample123.csv
+
 
 # CellRanger Four pipelines: 
 1. cellranger mkfastq: <br>
