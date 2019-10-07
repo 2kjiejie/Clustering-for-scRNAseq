@@ -51,7 +51,7 @@ Specify all the folders and run the following commands:
                    --sample=mysample \
                    --expect-cells=4000
 
-## 4. Collect the informations
+## 4. Collect the information
 It will mainly store all the information in the outs/ folder and the required folder will tree as follows:
  ```
  outs/
@@ -66,6 +66,23 @@ It will mainly store all the information in the outs/ folder and the required fo
 ├── web_summary.html
 ```
 
+1. **matrix.mtx.gz**: <br>
+format is described as follows: <br>
+For example, if a line in mtx file is 154 1 21, this indicates:
+```
+The gene at line number 154 in genes.tsv.
+
+The cell-barcode at line number 1 in barcodes.tsv.
+
+UMI count = 21 for the gene and barcode combination.
+```
+2. **genes.tsv**: <br>
+This file contains all annotated genes. Each gene is represented in each row. The first column is the gene_id while the second column is the gene name.
+
+3. **barcodes.tsv**: <br>
+This file contains the barcodes represented in the mtx file. The folder filtered_gene_bc_matrices contains all barcodes that were filtered as cells. The folder raw_gene_bc_matrices contains all valid barcodes (that is all barcodes that came from a barcode whitelist).
+
+\<Transform to CSV>\
 These data are stored in sparse way. But you could also use the following command to transform the data into csv files:
 >
     cellranger mat2csv sample123/outs/filtered_feature_bc_matrix sample123.csv

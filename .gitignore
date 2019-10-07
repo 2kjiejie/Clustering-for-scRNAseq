@@ -1,2 +1,4 @@
 sra-toolkit/
 dataset/
+.ipynb_checkpoints/
+cache/
