@@ -20,7 +20,7 @@ Go to NCBL website to download SRA toolkits
 Download the SRA toolkits and install <br>
 https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software 
 
-Here we use sc_10x (GSM3022245) for example, it uses GRCh38 for reference and expect-cells=4000. (It will specify in online SRA documentations.)
+Here we use sc_10x [(GSM3022245)](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR6782112) for example, it uses GRCh38 for reference and expect-cells=4000. (It will specify in online SRA documentations.)
 >
     wget https://sra-download.ncbi.nlm.nih.gov/traces/sra60/SRR/006623/SRR6782112
 
