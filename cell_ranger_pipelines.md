@@ -51,6 +51,9 @@ Specify all the folders and run the following commands:
                    --sample=mysample \
                    --expect-cells=4000
 
+##For example, here mysample could be SRR8606521##
+
+
 ## 4. Collect the information
 It will mainly store all the information in the outs/ folder and the required folder will tree as follows:
  ```
