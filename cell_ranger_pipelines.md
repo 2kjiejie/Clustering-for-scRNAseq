@@ -46,12 +46,12 @@ compatible: SRR6334436_S1_L001_R1_001.fastq
 Specify all the folders and run the following commands:
 >
     cellranger count --id=sample1 \
-                   --transcriptome=/opt/refdata-cellranger-GRCh38-3.0.0 \
+                   --transcriptome=refdata-cellranger-GRCh38-3.0.0 \
                    --fastqs=fastq_path \
-                   --sample=mysample \
+                   --sample=SRR6334436 \
                    --expect-cells=4000
 
-##For example, here mysample could be SRR8606521##
+##For example, here mysample could be SRR6334436##
 
 
 ## 4. Collect the information
