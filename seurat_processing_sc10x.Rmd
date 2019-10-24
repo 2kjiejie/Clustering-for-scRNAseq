@@ -10,7 +10,7 @@ library(Seurat)
 library(dplyr)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "./dataset/sc-10x/filtered_feature_bc_matrix")
+pbmc.data <- Read10X(data.dir = "./dataset/sc-10x-5c/filtered_feature_bc_matrix")
 
 # Examine the memory savings between regular and sparse matrices
 dense.size <- object.size(x = as.matrix(x = pbmc.data))
@@ -48,7 +48,7 @@ CombinePlots(plots = list(plot1, plot2))
 ```
 
 ```{r}
-pbmc <- subset(pbmc, subset = nFeature_RNA > 2500 & nFeature_RNA < 8000 & percent.mt < 5)
+pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & nFeature_RNA < 7000 & percent.mt < 5)
 ```
 
 ## 2. Normalizing
@@ -163,9 +163,9 @@ pbmc <- RenameIdents(pbmc, new.cluster.ids)
 DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 ```
 
-
-
-
+```{r}
+write.csv(pbmc[["seurat_clusters"]], './cluster_results/sc-10x-5c/seurat-R.csv')
+```
 
 
 
