@@ -3,6 +3,29 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+```{r}
+library(SingleCellExperiment)
+sce <- SingleCellExperiment(
+    assays = list(
+        counts = as.matrix(pbmc@assays$RNA@counts),
+        logcounts = log2(as.matrix(pbmc@assays$RNA@counts) + 1)
+    )
+)
+```
+
+```{r}
+library(Matrix)
+
+# save sparse matrix
+sparse.sce <- Matrix(pbmc@assays$RNA@counts , sparse = T )
+writeMM(obj = sparse.sce, file="matrix.mtx")
+
+# save genes and cells names
+write(x = rownames(sce), file = "genes.tsv")
+write(x = colnames(sce), file = "barcodes.tsv")
+```
+
+
 ## Setup the Seurat Object
 
 ```{r}
@@ -10,7 +33,7 @@ library(Seurat)
 library(dplyr)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "./dataset/sc-10x-5c/filtered_feature_bc_matrix")
+pbmc.data <- Read10X(data.dir = "/Users/waynewu/4.Github/Clustering-for-scRNAseq/dataset/sc-10x/filtered_feature_bc_matrix")
 
 # Examine the memory savings between regular and sparse matrices
 dense.size <- object.size(x = as.matrix(x = pbmc.data))
@@ -48,7 +71,7 @@ CombinePlots(plots = list(plot1, plot2))
 ```
 
 ```{r}
-pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & nFeature_RNA < 7000 & percent.mt < 5)
+pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & nFeature_RNA < 8000 & percent.mt < 5)
 ```
 
 ## 2. Normalizing
@@ -56,6 +79,8 @@ pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & nFeature_RNA < 7000 & percen
 ```{r}
 pbmc <- NormalizeData(pbmc, normalization.method = "LogNormalize", scale.factor = 10000)
 ```
+
+
 
 ## 3. Find highly variable features
 We next calculate a subset of features that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others)
@@ -77,6 +102,7 @@ CombinePlots(plots = list(plot1, plot2))
 all.genes <- rownames(pbmc)
 pbmc <- ScaleData(pbmc, features = all.genes)
 ```
+
 
 #5. PCA
 ```{r}
