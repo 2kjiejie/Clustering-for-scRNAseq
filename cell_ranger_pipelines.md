@@ -104,4 +104,19 @@ Aggregate outputs from multiple runs of cellranger count. Combine data from mult
 4. cellranger reanalyze: <br>
 Rerun dimensionality reduction, clustering and gene expression algorithms of feature-barcode matrices.
 
+# Subsampling the fastq files:
+1. Use the package ["seqtk"](https://github.com/lh3/seqtk) to perform subsampling from fastq files
+> 
+    git clone https://github.com/lh3/seqtk.git;
+    cd seqtk; make
+
+2. The add the path to your PATH to ensure system to find the command: seqtk
+
+3. Use the following command to subsample the fastq files:
+>
+    seqtk sample -s100 read1.fq 10000 > sub1.fq
+    seqtk sample -s100 read2.fq 10000 > sub2.fq
+
+
+
 
