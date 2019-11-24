@@ -1,4 +1,11 @@
 dataset/
 .ipynb_checkpoints/
 cache/
+
 methods/RaceID3_StemID2_package-master/
+methods/cooccurrence/
+methods/RCA-master/
+methods/SAFE-clustering/SAFEclustering/
+methods/Seurat/R/.Rhistory
+.RData
+.Rhistory
