@@ -1,0 +1,187 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# set directory
+setwd("/Users/waynewu/4.Github/Clustering-for-scRNAseq")
+```
+
+
+# Data Preprocessing
+
+```{r}
+
+library(Seurat)
+library(dplyr)
+
+# Load dataset
+sc10x.data <- Read10X(data.dir = "./dataset/sc-10x/filtered_feature_bc_matrix")
+
+# Examine the memory savings between regular and sparse matrices
+dense.size <- object.size(x = as.matrix(x = sc10x.data))
+dense.size
+
+sparse.size <- object.size(x = sc10x.data)
+sparse.size
+```
+
+```{r}
+sc10x <- CreateSeuratObject(counts = sc10x.data, project = "sc10x", min.cells = 3, min.features = 200)
+sc10x
+```
+
+
+```{r}
+# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
+sc10x[["percent.mt"]] <- PercentageFeatureSet(sc10x, pattern = "^MT-")
+head(sc10x@meta.data, 5)
+```
+
+```{r}
+# Visualize QC metrics as a violin plot
+VlnPlot(sc10x, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+```{r}
+sc10x <- subset(sc10x, subset = nFeature_RNA > 1000 & nFeature_RNA < 8000 & percent.mt < 5)
+```
+
+```{r}
+sc10x <- NormalizeData(sc10x, normalization.method = "LogNormalize", scale.factor = 10000)
+```
+
+```{r}
+sc10x <- FindVariableFeatures(sc10x, selection.method = "vst", nfeatures = 2000)
+
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(sc10x), 10)
+
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(sc10x)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+CombinePlots(plots = list(plot1, plot2))
+```
+
+```{r}
+all.genes <- rownames(sc10x)
+sc10x <- ScaleData(sc10x, features = all.genes)
+```
+
+```{r}
+saveRDS(sc10x, file = "./dataset/sc-10x-after-prep/sc10x-3c.rds")
+```
+
+# Create single cell experiment object
+
+```{r}
+library(SingleCellExperiment)
+sce <- SingleCellExperiment(
+    assays = list(
+        counts = as.matrix(sc10x@assays$RNA@counts),
+        logcounts = log2(as.matrix(sc10x@assays$RNA@counts) + 1)
+    )
+)
+saveRDS(sce, file = "./dataset/sc-10x-after-prep/sc10x-3c-sce.rds")
+```
+
+```{r}
+library(Matrix)
+
+# save sparse matrix
+sparse.sce <- Matrix(sc10x@assays$RNA@counts , sparse = T )
+writeMM(obj = sparse.sce, file="./dataset/sc-10x-after-prep/matrix.mtx")
+
+# save genes and cells names
+write(x = rownames(sce), file = "./dataset/sc-10x-after-prep/genes.tsv")
+write(x = colnames(sce), file = "./dataset/sc-10x-after-prep/barcodes.tsv")
+```
+
+# Start Running
+
+```{r}
+sc10x <- readRDS("./dataset/sc-10x-after-prep/sc10x-3c.rds")
+sce <- readRDS("./dataset/sc-10x-after-prep/sc10x-3c-sce.rds")
+```
+
+## 1. Seurat
+
+```{r}
+run_seurat = function(sc10x){
+  sc10x <- RunPCA(sc10x, features = VariableFeatures(object = sc10x))
+  sc10x <- FindNeighbors(sc10x, dims = 1:10)
+  sc10x <- FindClusters(sc10x, resolution = 1)
+  sc10x <- RunUMAP(sc10x, dims = 1:10)
+  cluster1.markers <- FindMarkers(sc10x, ident.1 = 1, min.pct = 0.25)
+  write.csv(sc10x[["seurat_clusters"]], './cluster_results/sc-10x/seurat-R.csv')
+}
+```
+
+## 2. sc3
+
+```{r}
+library(SingleCellExperiment)
+library(SC3)
+library(scater)
+run_sc3 = function(sce){
+  # define feature names in feature_symbol column
+  rowData(sce)$feature_symbol <- rownames(sce)
+  # remove features with duplicated names
+  sce <- sce[!duplicated(rowData(sce)$feature_symbol), ]
+  # define spike-ins
+  isSpike(sce, "ERCC") <- grepl("ERCC", rowData(sce)$feature_symbol)
+  sce_after_sc3 <- sc3(sce, ks = 10, biology = TRUE)
+  # sc3_interactive(sce_after_sc3)
+  sc3_export_results_xls(sce_after_sc3, filename = "./cluster_results/sc-10x/sc3_results.xls")
+}
+```
+
+## 3. RaceID3
+
+```{r}
+library(RaceID)
+run_raceid3 = function(sce){
+  sc <- SCseq(assay(sce))
+  sc <- filterdata(sc, mintotal=1, minexpr = 1, minnumber = 1,
+                   LBatch = NULL, knn = 10, CGenes = NULL, FGenes = NULL, ccor = 0.4,
+                   bmode = "RaceID")
+  sc@ndata = sc@expdata
+  sc@genes = rownames(sc@ndata)
+  sc@counts = rep(1,ncol(sce))
+  names(sc@counts) = colnames(sc@ndata)
+  sc@cluster$features = sc@genes
+  sc <- compdist(sc, metric="pearson", FSelect = FALSE, knn = NULL)
+  sc <- clustexp(sc, sat = TRUE, samp = NULL, cln = NULL, clustnr = 30,
+                 bootnr = 50, rseed = 17000, FUNcluster = "kmedoids")
+  sc <- findoutliers(sc, probthr = 0.001, outminc = 5, outlg = 2,
+                     outdistquant = 0.95)
+  colData(sce)$clustering_res = as.factor(sc@cpart)
+  write.csv(as.matrix(sc@cpart), './cluster_results/sc-10x/RaceID3.csv')
+}
+```
+
+## 4. SAFE-clustering
+
+```{r}
+library(SAFEclustering)
+run_SAFE = function(sc10x){
+  cluster.results <- individual_clustering(inputTags = sc10x@assays$RNA@counts, datatype = "count", 
+  mt_filter = FALSE, nGene_filter = FALSE, SC3 = TRUE, gene_filter = FALSE, CIDR = TRUE, 
+  nPC.cidr = NULL, Seurat = TRUE, nPC.seurat = NULL, resolution = 0.9, tSNE = TRUE, dimensions = 3, 
+  perplexity = 30, SEED = 123)
+  cluster.ensemble <- SAFE(cluster_results = cluster.results, program.dir = "./methods/SAFE-clustering/SAFEclustering/gpmetis_and_shmetis_for_Mac", 
+  MCLA = TRUE, CSPA = TRUE, HGPA = TRUE, SEED = 123)
+  x <- as.matrix(cluster.ensemble$optimal_clustering)
+  rownames(x) <- colnames(sce)
+  write.csv(x,'./cluster_results/sc-10x/SAFE.csv')
+}
+```
+
+```{r}
+run_seurat(sc10x)
+run_sc3(sce)
+run_raceid3(sce)
+run_SAFE(sc10x)
+```
+
