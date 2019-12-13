@@ -30,7 +30,7 @@ Then, locate to the sra-toolkit
 
 For pair-ends:
 >
-    ./bin/fastq-dump --split-files *.sra
+    ./bin/fastq-dump --split-files ./SRR6782112
 
 Then refer to [Cell-ranger pipelines](https://kb.10xgenomics.com/hc/en-us/articles/115003802691-How-do-I-prepare-Sequence-Read-Archive-SRA-data-from-NCBI-for-Cell-Ranger-):
 
