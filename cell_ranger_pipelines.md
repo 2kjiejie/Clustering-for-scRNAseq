@@ -111,6 +111,7 @@ Rerun dimensionality reduction, clustering and gene expression algorithms of fea
     cd seqtk; make
 
 2. The add the path to your PATH to ensure system to find the command: seqtk
+   export PATH=$PATH:/nethome/twu367/seqtk/seqtk
 
 3. Use the following command to subsample the fastq files:
 >
