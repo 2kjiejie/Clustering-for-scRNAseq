@@ -17,7 +17,7 @@ library(Seurat)
 library(dplyr)
 
 # Load dataset
-sc10x.data <- Read10X(data.dir = "./dataset/subsampling-5c/70/filtered_feature_bc_matrix")
+sc10x.data <- Read10X(data.dir = "./dataset/subsampling-5c/50/filtered_feature_bc_matrix")
 
 # Examine the memory savings between regular and sparse matrices
 dense.size <- object.size(x = as.matrix(x = sc10x.data))
@@ -86,17 +86,17 @@ library(Matrix)
 
 # save sparse matrix
 sparse.sce <- Matrix(sc10x@assays$RNA@counts , sparse = T )
-writeMM(obj = sparse.sce, file="./dataset/subsampling-5c/70-after/matrix.mtx")
+writeMM(obj = sparse.sce, file="./dataset/subsampling-5c/50-after/matrix.mtx")
 
 # save genes and cells names
-write(x = rownames(sce), file = "./dataset/subsampling-5c/70-after/genes.tsv")
-write(x = colnames(sce), file = "./dataset/subsampling-5c/70-after/barcodes.tsv")
+write(x = rownames(sce), file = "./dataset/subsampling-5c/50-after/genes.tsv")
+write(x = colnames(sce), file = "./dataset/subsampling-5c/50-after/barcodes.tsv")
 ```
 
 # Start Running
 
 ```{r}
-path = "./cluster_results/subsampling-5c/70/"
+path = "./cluster_results/subsampling-5c/50/"
 ```
 
 
@@ -128,7 +128,7 @@ run_sc3 = function(sce){
   isSpike(sce, "ERCC") <- grepl("ERCC", rowData(sce)$feature_symbol)
   sce_after_sc3 <- sc3(sce, ks = 10, biology = TRUE)
   # sc3_interactive(sce_after_sc3)
-  sc3_export_results_xls(sce_after_sc3, filename = paste(path, "sc3_results.xls"))
+  sc3_export_results_xls(sce_after_sc3, filename = paste(path,"sc3_results.xls"))
 }
 ```
 
@@ -152,7 +152,7 @@ run_raceid3 = function(sce){
   sc <- findoutliers(sc, probthr = 0.001, outminc = 5, outlg = 2,
                      outdistquant = 0.95)
   colData(sce)$clustering_res = as.factor(sc@cpart)
-  write.csv(as.matrix(sc@cpart), paste(path, 'RaceID3.csv'))
+  write.csv(as.matrix(sc@cpart), paste(path,'RaceID3.csv'))
 }
 ```
 
@@ -169,7 +169,7 @@ run_SAFE = function(sc10x){
   MCLA = TRUE, CSPA = TRUE, HGPA = TRUE, SEED = 123)
   x <- as.matrix(cluster.ensemble$optimal_clustering)
   rownames(x) <- colnames(sce)
-  write.csv(x, paste(path, 'SAFE.csv'))
+  write.csv(x, paste(path,'SAFE.csv'))
 }
 ```
 
