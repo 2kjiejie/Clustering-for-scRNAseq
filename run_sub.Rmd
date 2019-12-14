@@ -17,7 +17,7 @@ library(Seurat)
 library(dplyr)
 
 # Load dataset
-sc10x.data <- Read10X(data.dir = "./dataset/subsampling/50")
+sc10x.data <- Read10X(data.dir = "./dataset/subsampling-5c/70/filtered_feature_bc_matrix")
 
 # Examine the memory savings between regular and sparse matrices
 dense.size <- object.size(x = as.matrix(x = sc10x.data))
@@ -45,7 +45,7 @@ VlnPlot(sc10x, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 
 ```
 
 ```{r}
-sc10x <- subset(sc10x, subset = nFeature_RNA > 1000 & nFeature_RNA < 7000 & percent.mt < 5)
+sc10x <- subset(sc10x, subset = nFeature_RNA > 1000 & nFeature_RNA < 6000 & percent.mt < 5) #1000-7000
 ```
 
 ```{r}
@@ -86,17 +86,17 @@ library(Matrix)
 
 # save sparse matrix
 sparse.sce <- Matrix(sc10x@assays$RNA@counts , sparse = T )
-writeMM(obj = sparse.sce, file="./dataset/subsampling/50-after/matrix.mtx")
+writeMM(obj = sparse.sce, file="./dataset/subsampling-5c/70-after/matrix.mtx")
 
 # save genes and cells names
-write(x = rownames(sce), file = "./dataset/subsampling/50-after/genes.tsv")
-write(x = colnames(sce), file = "./dataset/subsampling/50-after/barcodes.tsv")
+write(x = rownames(sce), file = "./dataset/subsampling-5c/70-after/genes.tsv")
+write(x = colnames(sce), file = "./dataset/subsampling-5c/70-after/barcodes.tsv")
 ```
 
 # Start Running
 
 ```{r}
-path = "./cluster_results/subsampling/50/"
+path = "./cluster_results/subsampling-5c/70/"
 ```
 
 

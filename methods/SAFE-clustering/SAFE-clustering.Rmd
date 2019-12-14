@@ -21,7 +21,7 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 ```{r}
 library(SAFEclustering)
-cluster.results <- individual_clustering(inputTags = pbmc@assays$RNA@counts, datatype = "count", 
+cluster.results <- individual_clustering(inputTags = sc10x@assays$RNA@counts, datatype = "count", 
 mt_filter = FALSE, nGene_filter = FALSE, SC3 = TRUE, gene_filter = FALSE, CIDR = TRUE, 
 nPC.cidr = NULL, Seurat = TRUE, nPC.seurat = NULL, resolution = 0.9, tSNE = TRUE, dimensions = 3, 
 perplexity = 30, SEED = 123)
@@ -33,11 +33,12 @@ MCLA = TRUE, CSPA = TRUE, HGPA = TRUE, SEED = 123)
 ```
 
 ```{r}
-cluster.ensemble$optimal_clustering
+x <- as.matrix(cluster.ensemble$optimal_clustering)
+rownames(x) <- colnames(sce)
 ```
 
 
 ```{r}
-write.csv(cluster.ensemble$optimal_clustering,'/Users/waynewu/4.github/Clustering-for-scRNAseq/cluster_results/sc-10x/SAFE.csv')
+write.csv(x,'/Users/waynewu/4.github/Clustering-for-scRNAseq/cluster_results/sc-10x/SAFE.csv')
 ```
 

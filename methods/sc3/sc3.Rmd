@@ -45,7 +45,7 @@ sce <- sce[!duplicated(rowData(sce)$feature_symbol), ]
 # define spike-ins
 isSpike(sce, "ERCC") <- grepl("ERCC", rowData(sce)$feature_symbol)
 
-sce_after_sc3 <- sc3(sce, ks = 4, biology = TRUE)
+sce_after_sc3 <- sc3(sce, ks = 10, biology = TRUE)
 ```
 
 ```{r}

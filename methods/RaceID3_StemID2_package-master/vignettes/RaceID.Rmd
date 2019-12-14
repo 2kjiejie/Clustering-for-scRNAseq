@@ -28,7 +28,6 @@ RaceID and StemID functions have various input and output parameters, which are 
 To start the analysis, a RaceID single-cell sequencing (`SCseq`) object is initialized with a count matrix.
 ```{r}
 library(RaceID)
-df <- read.csv("/Users/waynewu/4.Github/Clustering-for-scRNAseq/dataset/sc-10x/filtered_feature_bc_matrix/output.csv")
 sc <- SCseq(intestinalData)
 ```
 

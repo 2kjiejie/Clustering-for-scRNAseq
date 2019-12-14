@@ -3,29 +3,6 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-```{r}
-library(SingleCellExperiment)
-sce <- SingleCellExperiment(
-    assays = list(
-        counts = as.matrix(pbmc@assays$RNA@counts),
-        logcounts = log2(as.matrix(pbmc@assays$RNA@counts) + 1)
-    )
-)
-```
-
-```{r}
-library(Matrix)
-
-# save sparse matrix
-sparse.sce <- Matrix(pbmc@assays$RNA@counts , sparse = T )
-writeMM(obj = sparse.sce, file="matrix.mtx")
-
-# save genes and cells names
-write(x = rownames(sce), file = "genes.tsv")
-write(x = colnames(sce), file = "barcodes.tsv")
-```
-
-
 ## Setup the Seurat Object
 
 ```{r}
@@ -33,7 +10,8 @@ library(Seurat)
 library(dplyr)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "/Users/waynewu/4.Github/Clustering-for-scRNAseq/dataset/sc-10x/filtered_feature_bc_matrix")
+# pbmc.data <- Read10X(data.dir = "/Users/waynewu/4.Github/Clustering-for-scRNAseq/dataset/sc-10x/filtered_feature_bc_matrix")
+pbmc.data <- Read10X(data.dir = "/Users/waynewu/4.Github/Clustering-for-scRNAseq/dataset/subsampling/01")
 
 # Examine the memory savings between regular and sparse matrices
 dense.size <- object.size(x = as.matrix(x = pbmc.data))
@@ -44,7 +22,7 @@ sparse.size
 ```
 
 ```{r}
-pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
+pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k")#, min.cells = 3, min.features = 200)
 pbmc
 ```
 
@@ -71,7 +49,8 @@ CombinePlots(plots = list(plot1, plot2))
 ```
 
 ```{r}
-pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & nFeature_RNA < 8000 & percent.mt < 5)
+# pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & nFeature_RNA < 8000 & percent.mt < 5)
+pbmc <- subset(pbmc, subset = nFeature_RNA > 10 & percent.mt < 5)
 ```
 
 ## 2. Normalizing
@@ -177,7 +156,7 @@ head(cluster1.markers, n = 5)
 ```{r}
 # find all markers distinguishing cluster 5 from clusters 0 and 3
 cluster5.markers <- FindMarkers(pbmc, ident.1 = 5, ident.2 = c(0, 3), min.pct = 0.25)
-head(cluster5.markers, n = 5)
+head(cluster5.markers, n = 2)
 ```
 
 #10. Assigning cell type identity to clusters
@@ -190,8 +169,10 @@ DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 ```
 
 ```{r}
-write.csv(pbmc[["seurat_clusters"]], './cluster_results/sc-10x-5c/seurat-R.csv')
+#write.csv(pbmc[["seurat_clusters"]], './cluster_results/sc-10x-5c/seurat-R.csv')
+write.csv(pbmc[["seurat_clusters"]], '/Users/waynewu/4.Github/Clustering-for-scRNAseq/cluster_results/subsampling/01/seurat-R.csv')
 ```
+
 
 
 
