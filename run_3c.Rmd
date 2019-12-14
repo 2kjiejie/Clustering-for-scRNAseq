@@ -179,9 +179,9 @@ run_SAFE = function(sc10x){
 ```
 
 ```{r}
-run_seurat(sc10x)
-run_sc3(sce)
-run_raceid3(sce)
+#run_seurat(sc10x)
+#run_sc3(sce)
+#run_raceid3(sce)
 run_SAFE(sc10x)
 ```
 
