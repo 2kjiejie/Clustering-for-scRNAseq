@@ -30,7 +30,7 @@ Then, locate to the sra-toolkit
 
 For pair-ends:
 >
-    ./bin/fastq-dump --split-files *.sra
+    ./bin/fastq-dump --split-files ./SRR6782112
 
 Then refer to [Cell-ranger pipelines](https://kb.10xgenomics.com/hc/en-us/articles/115003802691-How-do-I-prepare-Sequence-Read-Archive-SRA-data-from-NCBI-for-Cell-Ranger-):
 
@@ -111,6 +111,7 @@ Rerun dimensionality reduction, clustering and gene expression algorithms of fea
     cd seqtk; make
 
 2. The add the path to your PATH to ensure system to find the command: seqtk
+   export PATH=$PATH:/nethome/twu367/seqtk/seqtk
 
 3. Use the following command to subsample the fastq files:
 >
